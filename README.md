@@ -1,0 +1,1 @@
+https://www.investing.com/currencies/usd-cny
