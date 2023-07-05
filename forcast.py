@@ -1,21 +1,17 @@
 import datetime
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import torch
 from gluonts.dataset.common import ListDataset
 from gluonts.evaluation import make_evaluation_predictions
 from gluonts.model import Predictor
-from gluonts.model.estimator import Estimator
-from gluonts.torch import TemporalFusionTransformerEstimator
-from pathlib import Path
-
 from tqdm import tqdm
 
 # Load data from a CSV file into a PandasDataset
 dataset_name = 'USD_CNY Historical Data'
-df = pd.read_csv(f'./data/{dataset_name}.csv', parse_dates=True)
+df = pd.read_csv(f'./data/{dataset_name}.csv', parse_dates=['Date'])
 
 df = df.iloc[::-1]
 end = df['Date'].iloc[-1]
@@ -59,4 +55,4 @@ for forecast in forecasts:
     forecast.start_date = end
     forecast.plot()
 plt.legend(["True values"], loc="upper left", fontsize="xx-large")
-plt.show()
+plt.savefig(f"forecast_{datetime.datetime.today().strftime('%Y%m%d')}.png")
