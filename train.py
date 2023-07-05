@@ -2,7 +2,6 @@
 for data from csv
 """
 import os.path
-import datetime
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -13,14 +12,11 @@ from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.torch import TemporalFusionTransformerEstimator
 from tqdm import tqdm
 
+import utils
+
 # Load data from a CSV file into a PandasDataset
 dataset_name = 'USD_CNY Historical Data'
-df = pd.read_csv(f'./data/{dataset_name}.csv', parse_dates=['Date'])
-
-df = df.iloc[::-1]
-start = df['Date'].iloc[0]
-end = df['Date'].iloc[-1]
-target = df['Price'].to_numpy()
+df, start, end, target = utils.load_dataset(dataset_name)
 target = target.reshape(1, -1)
 
 prediction_length = 7
@@ -42,10 +38,6 @@ test_ds = ListDataset(
 
 entry = next(iter(train_ds))
 train_series = to_pandas(entry)
-# train_series.plot()
-# plt.grid(which="both")
-# plt.legend(["train series"], loc="upper left")
-# plt.show()
 
 entry = next(iter(test_ds))
 test_series = to_pandas(entry)
@@ -71,7 +63,7 @@ estimator = TemporalFusionTransformerEstimator(
     # dynamic_cardinalities=[40, 50, 60],
     # past_dynamic_cardinalities=[70, 80, 90],
     # lr=0.01,
-    trainer_kwargs={"max_epochs": 40}
+    trainer_kwargs={"max_epochs": 30}
 )
 # estimator = DeepAREstimator(
 #     prediction_length=prediction_length,
@@ -100,11 +92,5 @@ forecasts = list(tqdm(forecast_it, total=len(test_ds)))
 
 # Plot predictions
 display_offset = 30
-x = df["Date"][-display_offset:].to_numpy()
-x = [pd.Period(p, freq=freq).to_timestamp() for p in x]
-plt.plot(x, df["Price"][-display_offset:], color="black")
-for forecast in forecasts:
-    forecast.start_date = end - prediction_length + 1
-    forecast.plot()
-plt.legend(["True values"], loc="upper left", fontsize="xx-large")
-plt.savefig(f"test_{datetime.datetime.today().strftime('%Y%m%d')}.png")
+forcast_start_date = end - prediction_length + 1
+utils.display_forcast(df, display_offset, forecasts, forcast_start_date, freq, filename='test')

@@ -1,7 +1,5 @@
-import datetime
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
@@ -9,14 +7,11 @@ from gluonts.evaluation import make_evaluation_predictions
 from gluonts.model import Predictor
 from tqdm import tqdm
 
+import utils
+
 # Load data from a CSV file into a PandasDataset
 dataset_name = 'USD_CNY Historical Data'
-df = pd.read_csv(f'./data/{dataset_name}.csv', parse_dates=['Date'])
-
-df = df.iloc[::-1]
-end = df['Date'].iloc[-1]
-start = df['Date'].iloc[0]
-target = df['Price'].to_numpy()
+df, start, end, target = utils.load_dataset(dataset_name)
 print(target.shape)
 
 prediction_length = 7
@@ -48,11 +43,5 @@ forecasts = list(tqdm(forecast_it, total=len(future_ds)))
 
 # Plot the predictions
 display_offset = 30
-x = df["Date"][-display_offset:].to_numpy()
-x = [pd.Period(p, freq=freq).to_timestamp() for p in x]
-plt.plot(x, df["Price"][-display_offset:], color="black")
-for forecast in forecasts:
-    forecast.start_date = end
-    forecast.plot()
-plt.legend(["True values"], loc="upper left", fontsize="xx-large")
-plt.savefig(f"forecast_{datetime.datetime.today().strftime('%Y%m%d')}.png")
+forcast_start_date = end
+utils.display_forcast(df, display_offset, forecasts, forcast_start_date, freq, filename='test')
