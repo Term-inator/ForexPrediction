@@ -44,4 +44,4 @@ forecasts = list(tqdm(forecast_it, total=len(future_ds)))
 # Plot the predictions
 display_offset = 30
 forcast_start_date = end
-utils.display_forcast(df, display_offset, forecasts, forcast_start_date, freq, filename='test')
+utils.display_forcast(df, display_offset, forecasts, forcast_start_date, freq, filename='forcast')

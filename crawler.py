@@ -23,8 +23,10 @@ def crawler(use_cache=True):
         html = f.read()
 
         soup = BeautifulSoup(html, 'html.parser')
-        history_tables = soup.findAll('table', {
-            'class': 'datatable_table__D_jso datatable_table--border__B_zW0 datatable_table--mobile-basic__W2ilt datatable_table--freeze-column__7YoIE'})
+        table_wrapper = soup.findAll('div', {'class': 'border border-main'})
+        if len(table_wrapper) != 1:
+            raise Exception('table_wrapper length error')
+        history_tables = table_wrapper[0].findAll('table')
 
         if len(history_tables) != 1:
             raise Exception('history_tables length error')
@@ -75,7 +77,7 @@ else:
     new_end = new_df['Date'].iloc[0]  # 新数据的结束日期
 
     # 新数据的结束日期在昨天之前，说明数据已经更新完毕，重新爬取
-    if new_end < today - pd.Timedelta(days=2):
+    if new_end < today - pd.Timedelta(days=3):
         new_df = crawler(use_cache=False)
 
     # 保证数据类型一致
