@@ -26,6 +26,7 @@ def display_forcast(df, display_offset, forecasts, forcast_start_date, freq, fil
     :param filename: 保存的文件名
     :return:
     """
+    plt.figure(figsize=(20, 15))
     x = df["Date"][-display_offset:].to_numpy()
     x = [pd.Period(p, freq=freq).to_timestamp() for p in x]
     plt.plot(x, df["Price"][-display_offset:], color="black")
@@ -33,4 +34,6 @@ def display_forcast(df, display_offset, forecasts, forcast_start_date, freq, fil
         forecast.start_date = forcast_start_date
         forecast.plot()
     plt.legend(["True values"], loc="upper left", fontsize="xx-large")
+    plt.xticks(rotation=45, fontsize="xx-large")
+    plt.yticks(fontsize="xx-large")
     plt.savefig(f"{filename}_{datetime.datetime.today().strftime('%Y%m%d')}.png")
